@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.13;
+pragma solidity ^0.8.7;
 
 import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 
@@ -34,8 +34,8 @@ contract SportsdataioLinkPoolConsumerOracle is ChainlinkClient {
     struct GameCreateMlb {
         uint32 gameId;
         uint40 startTime;
-        bytes10 homeTeam;
-        bytes10 awayTeam;
+        string homeTeam;
+        string awayTeam;
     }
     struct GameResolveMlb {
         uint32 gameId;
@@ -181,8 +181,8 @@ contract SportsdataioLinkPoolConsumerOracle is ChainlinkClient {
         GameCreateMlb memory gameCreateMlb = GameCreateMlb(
             uint32(bytes4(_data)),
             uint40(bytes5(_data << 32)),
-            bytes10(_data << 72),
-            bytes10(_data << 152)
+            string(abi.encodePacked(bytes10(_data << 72))),
+            string(abi.encodePacked(bytes10(_data << 152)))
         );
         return gameCreateMlb;
     }
