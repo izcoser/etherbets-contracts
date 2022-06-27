@@ -48,6 +48,10 @@ contract EtherBaseballBets is ChainlinkClient {
     uint32 public gameIdSD;
     bytes32 public gameIdRD;
 
+    bool public resultsAggregated;
+    bool public resultConsensus;
+    bool public homeWinner;
+
     uint constant decimals = 10 ** 12;
 
     mapping(address => Bet) addressToBet;
@@ -214,6 +218,70 @@ contract EtherBaseballBets is ChainlinkClient {
     function withdrawLink() public {
         LinkTokenInterface linkToken = LinkTokenInterface(chainlinkTokenAddress());
         require(linkToken.transfer(msg.sender, linkToken.balanceOf(address(this))), "Unable to transfer");
+    }
+
+    /* Betting methods */
+
+    // Place bet with home == true if you think homeTeam will win.
+    function placeBet(bool home) public payable{
+        require(msg.value > 0, "msg.value has to be more than 0");
+        require(block.timestamp < gameDate, "You can't place bets anymore, game has started.");
+        if (home){
+            addressToBet[msg.sender].home += msg.value;
+            total.home += msg.value;
+        }
+        else{
+            addressToBet[msg.sender].away += msg.value;
+            total.away += msg.value;
+        }
+    }
+
+    function aggregateResults() public{
+        require(!resultsAggregated, "Results have already been aggregated.");
+        require(fetchedRD && fetchedSD, "Results have to be fetched from both oracles before aggregation.");
+        resultsAggregated = true;
+        resultConsensus = (resultSD.homeScore == resultRD.homeScore) && (resultSD.awayScore == resultRD.awayScore);
+        homeWinner = resultSD.homeScore > resultSD.awayScore;
+    }
+
+    function claimablePrize(address user) public view returns (uint){
+        if(!resultsAggregated || !resultConsensus){
+           return 0;
+        }
+
+        uint prizeShare;
+        
+        if (homeWinner){
+            if(total.home > 0){ // handle division by zero.
+                prizeShare = (addressToBet[user].home * decimals) / total.home;
+            }
+            else{
+                prizeShare = 0;
+            }
+            
+        }
+        else{
+            if(total.away > 0){
+                prizeShare = (addressToBet[user].away * decimals) / total.away;
+            }
+            else{
+                prizeShare = 0;
+            }
+        }
+
+        uint prize = (prizeShare * (total.home + total.away)) / decimals;
+        return prize;
+    }
+
+    function claimPrize() public{
+        require(resultsAggregated, "Results have not been aggregated yet.");
+        require(resultConsensus, "Results have no consensus.");
+
+        uint prize = claimablePrize(msg.sender);
+        require(prize > 0, "You did not win any prize.");
+
+        (bool sent,) = payable(msg.sender).call{value: prize}("");
+        require(sent, "Failed to send Ether.");
     }
 
 }
