@@ -5,7 +5,7 @@
 // Assumes no draws are possible.
 // Bets can be made until the game starts, and prizes are paid out 10 hours from the start of the game. Longest ever game was 8h long.
 
-pragma solidity ^0.8.7;
+pragma solidity ^0.8.9;
 
 import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 
@@ -42,8 +42,6 @@ contract EtherBaseballBets is ChainlinkClient {
     string public homeTeam;
     string public awayTeam;
 
-    bytes32[] public GamesSD;
-    bytes[] public GamesRD;
     uint256 public gameDate;
     uint32 public gameIdSD;
     bytes32 public gameIdRD;
@@ -81,7 +79,13 @@ contract EtherBaseballBets is ChainlinkClient {
         external
         recordChainlinkFulfillment(_requestId)
     {
-        GamesSD = _result;
+        bytes32 data = _result[0];
+        resultSD = GameResolveSD(
+            uint32(bytes4(data)),
+            uint8(bytes1(data << 32)),
+            uint8(bytes1(data << 40)),
+            bytes20(data << 48)
+        );
         fetchedSD = true;
     }
 
@@ -114,19 +118,6 @@ contract EtherBaseballBets is ChainlinkClient {
         sendChainlinkRequest(req, _payment);
     }
 
-    function _getGameResolveSDStruct(bytes32 _data) private pure returns (GameResolveSD memory) {
-        GameResolveSD memory gameResolveSD = GameResolveSD(
-            uint32(bytes4(_data)),
-            uint8(bytes1(_data << 32)),
-            uint8(bytes1(_data << 40)),
-            bytes20(_data << 48)
-        );
-        return gameResolveSD;
-    }
-
-    function getGameResolveSD(uint256 _idx) external view returns (GameResolveSD memory) {
-        return _getGameResolveSDStruct(GamesSD[_idx]);
-    }
 
     function _addUintArray(
         Chainlink.Request memory _req,
@@ -151,8 +142,8 @@ contract EtherBaseballBets is ChainlinkClient {
 
     /* Begin TheRunDown specific methods. */
 
-    function fulfillGames(bytes32 _requestId, bytes[] memory _result) public recordChainlinkFulfillment(_requestId) {
-        GamesRD = _result;
+    function fulfillGames(bytes32 _requestId, bytes[] memory _games) public recordChainlinkFulfillment(_requestId) {
+        resultRD = abi.decode(_games[0], (GameResolveRD));
         fetchedRD = true;
     }
 
@@ -187,11 +178,6 @@ contract EtherBaseballBets is ChainlinkClient {
         sendChainlinkRequest(req, _payment);
     }
 
-    function getGameResolvedRD(uint256 _idx) external view returns (GameResolveRD memory) {
-        GameResolveRD memory game = abi.decode(GamesRD[_idx], (GameResolveRD));
-        return game;
-    }
-
     /* End TheRunDown specific methods. */
 
     function requestResultFromSD() public{
@@ -208,7 +194,7 @@ contract EtherBaseballBets is ChainlinkClient {
         string[] memory _statusIds;
         string[] memory _gameIds = new string[](1);
         _gameIds[0] = string(abi.encodePacked(gameIdRD));
-        requestGamesResolveWithFilters('9de17351dfa5439d83f5c2f3707ffa9e', 100000000000000000, "create", 3, gameDate, _statusIds, _gameIds);
+        requestGamesResolveWithFilters('9de17351dfa5439d83f5c2f3707ffa9e', 100000000000000000, "resolve", 3, gameDate, _statusIds, _gameIds);
     }
 
     function setOracle(address _oracle) external {
