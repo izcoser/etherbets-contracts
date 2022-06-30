@@ -95,6 +95,7 @@ contract TherundownConsumer is ChainlinkClient {
 
     // Maps <RequestId, Result>
     mapping(bytes32 => bytes[]) public requestIdGames;
+    bytes32[] public requestIds;
 
     /* ========== CONSUMER REQUEST FUNCTIONS ========== */
 
@@ -148,6 +149,7 @@ contract TherundownConsumer is ChainlinkClient {
 
     function fulfillGames(bytes32 _requestId, bytes[] memory _games) public recordChainlinkFulfillment(_requestId) {
         requestIdGames[_requestId] = _games;
+        requestIds.push(_requestId);
     }
 
     /* ========== OTHER FUNCTIONS ========== */
@@ -155,6 +157,36 @@ contract TherundownConsumer is ChainlinkClient {
     function getGamesCreated(bytes32 _requestId, uint256 _idx) external view returns (GameCreate memory) {
         GameCreate memory game = abi.decode(requestIdGames[_requestId][_idx], (GameCreate));
         return game;
+    }
+
+    function getAllGamesCreated(bytes32 _requestId) external view returns(GameCreate[] memory){
+        uint len = requestIdGames[_requestId].length;
+        GameCreate[] memory games = new GameCreate[](len);
+        for(uint i = 0; i < len; i++){
+            games[i] = abi.decode(requestIdGames[_requestId][i], (GameCreate));
+        }
+        return games;
+    }
+
+    // Call this only if the last request was a 'create'.
+    function getAllGamesCreatedLastId() external view returns(GameCreate[] memory){
+        uint reqs = requestIds.length;
+        if(reqs == 0){
+            GameCreate[] memory empty;
+            return empty;
+        }
+
+        bytes32 lastId = requestIds[reqs - 1];
+        uint len = requestIdGames[lastId].length;
+        GameCreate[] memory games = new GameCreate[](len);
+        for(uint i = 0; i < len; i++){
+            games[i] = abi.decode(requestIdGames[lastId][i], (GameCreate));
+        }
+        return games;
+    }
+
+    function getNumberOfRequests() external view returns(uint){
+        return requestIds.length;
     }
 
     function getGamesResolved(bytes32 _requestId, uint256 _idx) external view returns (GameResolve memory) {

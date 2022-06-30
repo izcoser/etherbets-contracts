@@ -44,6 +44,7 @@ contract SportsdataioLinkPoolConsumerOracle is ChainlinkClient {
         bytes20 status;
     }
     mapping(bytes32 => bytes32[]) public requestIdGames;
+    bytes32[] public requestIds;
 
     error FailedTransferLINK(address to, uint256 amount);
 
@@ -77,6 +78,7 @@ contract SportsdataioLinkPoolConsumerOracle is ChainlinkClient {
         recordChainlinkFulfillment(_requestId)
     {
         requestIdGames[_requestId] = _result;
+        requestIds.push(_requestId);
     }
 
     /**
@@ -146,6 +148,36 @@ contract SportsdataioLinkPoolConsumerOracle is ChainlinkClient {
 
     function getGameCreateMlb(bytes32 _requestId, uint256 _idx) external view returns (GameCreateMlb memory) {
         return _getGameCreateMlbStruct(requestIdGames[_requestId][_idx]);
+    }
+
+    function getAllGamesCreated(bytes32 _requestId) external view returns(GameCreateMlb[] memory){
+        uint len = requestIdGames[_requestId].length;
+        GameCreateMlb[] memory games = new GameCreateMlb[](len);
+        for(uint i = 0; i < len; i++){
+            games[i] = _getGameCreateMlbStruct(requestIdGames[_requestId][i]);
+        }
+        return games;
+    }
+
+    // Call this only if the last request was a 'create'.
+    function getAllGamesCreatedLastId() external view returns(GameCreateMlb[] memory){
+        uint reqs = requestIds.length;
+        if(reqs == 0){
+            GameCreateMlb[] memory empty;
+            return empty;
+        }
+
+        bytes32 lastId = requestIds[reqs - 1];
+        uint len = requestIdGames[lastId].length;
+        GameCreateMlb[] memory games = new GameCreateMlb[](len);
+        for(uint i = 0; i < len; i++){
+            games[i] = _getGameCreateMlbStruct(requestIdGames[lastId][i]);
+        }
+        return games;
+    }
+
+    function getNumberOfRequests() external view returns(uint){
+        return requestIds.length;
     }
 
     function getGameResolveMlb(bytes32 _requestId, uint256 _idx) external view returns (GameResolveMlb memory) {
