@@ -25,4 +25,7 @@ yarn-error.log*
 packages/subgraph/build/
 packages/subgraph/src/types/
 
+
+# hardhat
 artifacts
+cache
