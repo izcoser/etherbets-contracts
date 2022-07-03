@@ -31,6 +31,22 @@ contract EtherBaseballBets is ChainlinkClient {
         uint away;
     }
 
+    struct ContractDetails{
+        Bet total;
+        bool fetchedSD;
+        bool fetchedRD;
+        string homeTeam;
+        string awayTeam;
+        uint8 homeScore;
+        uint8 awayScore;
+        uint gameDate;
+        uint32 gameIdSD;
+        bytes32 gameIDRD;
+        bool resultsAggregated;
+        bool resultConsensus;
+        bool homeWinner;
+    }
+
     Bet public total;
     
     GameResolveSD public resultSD;
@@ -53,6 +69,22 @@ contract EtherBaseballBets is ChainlinkClient {
     uint constant decimals = 10 ** 12;
 
     mapping(address => Bet) addressToBet;
+
+    function getDetails() public view returns (ContractDetails memory c){
+        c.total = total;
+        c.fetchedSD = fetchedSD;
+        c.fetchedRD = fetchedRD;
+        c.homeTeam = homeTeam;
+        c.awayTeam = awayTeam;
+        c.homeScore = resultSD.homeScore;
+        c.awayScore = resultSD.awayScore;
+        c.gameDate = gameDate;
+        c.gameIdSD = gameIdSD;
+        c.gameIDRD = gameIdRD;
+        c.resultsAggregated = resultsAggregated;
+        c.resultConsensus = resultConsensus;
+        c.homeWinner = homeWinner;
+    }
 
     /**
      * @param _link the LINK token address.
