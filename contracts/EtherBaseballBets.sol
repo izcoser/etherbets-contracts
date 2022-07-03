@@ -33,6 +33,8 @@ contract EtherBaseballBets is ChainlinkClient {
 
     struct ContractDetails{
         Bet total;
+        Bet userBet;
+        uint claimablePrize;
         bool fetchedSD;
         bool fetchedRD;
         string homeTeam;
@@ -70,8 +72,10 @@ contract EtherBaseballBets is ChainlinkClient {
 
     mapping(address => Bet) addressToBet;
 
-    function getDetails() public view returns (ContractDetails memory c){
+    function getDetails(address user) public view returns (ContractDetails memory c){
         c.total = total;
+        c.userBet = addressToBet[user];
+        c.claimablePrize = claimablePrize(user);
         c.fetchedSD = fetchedSD;
         c.fetchedRD = fetchedRD;
         c.homeTeam = homeTeam;
