@@ -1,5 +1,7 @@
 Hardhat contract development environment for [Etherbets](https://github.com/izcoser/etherbets).
 
+Current work in progress available at: http://198.58.111.165:3000
+
 # To do
 
 Create an aggregator contract. This contract will aggregate results from 2 or more ChainLINK sports data providers. One of them will be [TheRundown](https://market.link/nodes/TheRundown/integrations), the others are still to be decided.
