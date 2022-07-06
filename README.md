@@ -1,6 +1,6 @@
 Hardhat contract development environment for [Etherbets](https://github.com/izcoser/etherbets).
 
-Current work in progress available at: http://198.58.111.165:3000
+Current work in progress available at: https://etherbets.org/
 
 # To do
 
