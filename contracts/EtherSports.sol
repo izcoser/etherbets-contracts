@@ -9,9 +9,24 @@ pragma solidity ^0.8.9;
 
 import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 
-contract EtherBaseballBets is ChainlinkClient {
+contract EtherSportsFactory{
+    event NewSports(address sport);
+    address[] public contracts;
+
+    function newEtherSports(address _link, address _oracle, uint256 _date, uint32 _gameIdSD, bytes32 _gameIdRD, string memory _homeTeam, string memory _awayTeam) public returns (address){
+        EtherSports e = new EtherSports(_link, _oracle, _date, _gameIdSD, _gameIdRD, _homeTeam, _awayTeam);
+        contracts.push(address(e));
+        emit NewSports(address(e));
+        return address(e);
+    }
+}
+
+contract EtherSports is ChainlinkClient {
     using Chainlink for Chainlink.Request;
     using CBORChainlink for BufferChainlink.buffer;
+
+    event ResultsAggregated(bool resultConsensus, uint8 homeScore, uint8 awayScore);
+    event BetPlaced(address indexed sender, uint amount, bool homeTeam);
 
     struct GameResolveSD {
         uint32 gameId;
@@ -256,6 +271,7 @@ contract EtherBaseballBets is ChainlinkClient {
             addressToBet[msg.sender].away += msg.value;
             total.away += msg.value;
         }
+        emit(BetPlaced(msg.sender, msg.value, home));
     }
 
     function aggregateResults() public{
@@ -264,6 +280,7 @@ contract EtherBaseballBets is ChainlinkClient {
         resultsAggregated = true;
         resultConsensus = (resultSD.homeScore == resultRD.homeScore) && (resultSD.awayScore == resultRD.awayScore);
         homeWinner = resultSD.homeScore > resultSD.awayScore;
+        emit(ResultsAggregated(resultConsensus, resultSD.homeScore, resultSD.awayScore));
     }
 
     function claimablePrize(address user) public view returns (uint){
