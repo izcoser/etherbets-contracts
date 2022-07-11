@@ -175,7 +175,6 @@ contract EtherBets{ // how do I name this..
         require(block.timestamp - lastDrawTime > timeBetweenDraws, "You must wait longer before another draw is available.");
         require(paused == false, "A draw is already happening");
         paused = true; // pause bets to wait for the result.
-        lastDrawTime = block.timestamp;
         RandomNumberConsumer r = RandomNumberConsumer(VRF);
         r.getRandomNumber();
         emit RandomnessRequested(draw);
@@ -186,6 +185,7 @@ contract EtherBets{ // how do I name this..
         require(randomNumberFetched, "The random number has not been fetched.");
         winningNumbers = expand(randomNumber);
         emit NumbersDrawn(winningNumbers, draw);
+        lastDrawTime = block.timestamp;
         distributePrize();
         draw++;
 
