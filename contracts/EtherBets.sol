@@ -85,6 +85,7 @@ contract EtherBets{ // how do I name this..
         picks = _picks;
         timeBetweenDraws = _timeBetweenDraws;
         VRF = _VRF;
+        lastDrawTime = block.timestamp;
     }
 
     function getDetails() public view returns (string memory, uint, uint8, uint8, uint, uint, bool, uint, uint, uint8[] memory, uint256, bool){
