@@ -4,6 +4,6 @@ Current work in progress available at: https://etherbets.org/
 
 # To do
 
-Create an aggregator contract. This contract will aggregate results from 2 or more ChainLINK sports data providers. One of them will be [TheRundown](https://market.link/nodes/TheRundown/integrations), the others are still to be decided.
+- [x] Create Aggregator contract for Sports Bets - Done. Aggregate results using reports from [TheRundown](https://market.link/nodes/TheRundown/integrations) and [SportsDataIO](https://market.link/nodes/SportsDataIO/integrations). This contract accepts bets on home and away team, then fetches results from both providers and pays out whoever bet on the winning team.
 
-The aggregator will be used to fetch sports data from 2 or more providers and output a definitive, more decentralized answer. This answer will be then forwarded to a bet contract and the result will be set according to the aggregated answer.
+- [ ] Add events to all three betting apps. Currently only lotteries are emitting events.
