@@ -16,6 +16,8 @@ contract EtherPredictionFactory{
 }
 
 contract EtherPrediction {
+    event BetPlaced(address indexed sender, uint amount, bool higher);
+    event PriceObtained(int price, uint timestamp);
 
     AggregatorV3Interface internal priceFeed;
     /**
@@ -84,6 +86,7 @@ contract EtherPrediction {
             addressToBet[msg.sender].lower += msg.value;
             total.lower += msg.value;
         }
+        emit BetPlaced(msg.sender, msg.value, higher);
     }
 
     function claimablePrize(address user) public view returns (uint){
@@ -145,5 +148,6 @@ contract EtherPrediction {
         require(obtainedPrice == false, "Price has already been obtained.");
         fetchedPrice = getLatestPrice();
         obtainedPrice = true;
+        PriceObtained(fetchedPrice, block.timestamp);
     }
 }
