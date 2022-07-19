@@ -148,6 +148,6 @@ contract EtherPrediction {
         require(obtainedPrice == false, "Price has already been obtained.");
         fetchedPrice = getLatestPrice();
         obtainedPrice = true;
-        PriceObtained(fetchedPrice, block.timestamp);
+        emit PriceObtained(fetchedPrice, block.timestamp);
     }
 }

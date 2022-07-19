@@ -271,7 +271,7 @@ contract EtherSports is ChainlinkClient {
             addressToBet[msg.sender].away += msg.value;
             total.away += msg.value;
         }
-        emit(BetPlaced(msg.sender, msg.value, home));
+        emit BetPlaced(msg.sender, msg.value, home);
     }
 
     function aggregateResults() public{
@@ -280,7 +280,7 @@ contract EtherSports is ChainlinkClient {
         resultsAggregated = true;
         resultConsensus = (resultSD.homeScore == resultRD.homeScore) && (resultSD.awayScore == resultRD.awayScore);
         homeWinner = resultSD.homeScore > resultSD.awayScore;
-        emit(ResultsAggregated(resultConsensus, resultSD.homeScore, resultSD.awayScore));
+        emit ResultsAggregated(resultConsensus, resultSD.homeScore, resultSD.awayScore);
     }
 
     function claimablePrize(address user) public view returns (uint){
