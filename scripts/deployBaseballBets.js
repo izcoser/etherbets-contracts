@@ -13,7 +13,7 @@ async function main() {
     "0x6238393839383661323136633266383037663039376262323534356135613638", // id RD,
     "Miami Marlins", "New York Mets");
   
-    console.log("Token address:", token.address);
+    console.log("EtherBaseballBets address:", token.address);
   }
   
   main()

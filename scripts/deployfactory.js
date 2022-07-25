@@ -8,7 +8,7 @@ async function main() {
   const Token = await ethers.getContractFactory("contracts/EtherBets.sol:EtherBetsFactory");
   const token = await Token.deploy();
 
-  console.log("Token address:", token.address);
+  console.log("EtherBetsFactory address:", token.address);
 }
 
 main()

@@ -8,7 +8,7 @@ async function main() {
   const Token = await ethers.getContractFactory("contracts/EtherBets.sol:EtherBets");
   const token = await Token.deploy("Mega Sena", ethers.utils.parseEther("0.01"), 60, 6, 120, "0x63B9d642887dd6D7E35A822382a2cBf5Eb49fdfB");
 
-  console.log("Token address:", token.address);
+  console.log("EtherBets address:", token.address);
 }
 
 main()

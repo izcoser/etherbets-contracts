@@ -10,7 +10,7 @@ async function main() {
     const token = await Token.deploy("0xa36085F69e2889c224210F603D836748e7dC0088", "0xfF07C97631Ff3bAb5e5e5660Cdf47AdEd8D4d4Fd");
     
   
-    console.log("Token address:", token.address);
+    console.log("TherundownConsumer address:", token.address);
   }
   
   main()
