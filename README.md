@@ -8,10 +8,10 @@ Current work in progress available at: https://etherbets.org/
 
 - [x] Add events to all three betting apps. - Done. Now just have to update the frontend to listen to all events.
 
-- [] Explore using multiple Chainlink Price Feeds as source of randomness (several price values multiplied by each other).
+- [ ] Explore using multiple Chainlink Price Feeds as source of randomness (several price values multiplied by each other).
 
-- [] Upgrade to Chainlink VRF v2.
+- [ ] Upgrade to Chainlink VRF v2.
 
-- [] Unite bet instances into a single contract to decrease costs.
+- [ ] Unite bet instances into a single contract to decrease costs.
 
-- [] Explore other oracle options.
+- [ ] Explore other oracle options.
