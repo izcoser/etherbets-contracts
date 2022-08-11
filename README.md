@@ -15,3 +15,5 @@ Current work in progress available at: https://etherbets.org/
 - [ ] Unite bet instances into a single contract to decrease costs.
 
 - [ ] Explore other oracle options.
+
+- [ ] Use Chainlink Keepers to automate the flow of the systems.
