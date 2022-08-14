@@ -19,3 +19,5 @@ Current work in progress available at: https://etherbets.org/
 - [ ] Use Chainlink Keepers to automate the flow of the systems.
 
 - [ ] Get rid of public variables (used for debugging).
+
+- [ ] Use Fisher–Yates shuffle to expand numbers from the random seed more efficiently.
