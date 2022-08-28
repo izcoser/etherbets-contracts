@@ -18,7 +18,7 @@ function arrToUint(arr) {
 async function main() {
 
   const combinations = generateCombinations(Array.from({ length: 8 }, (_, i) => i + 1), 2);
-  const address = "0x2B0cAbF69e6b380095D8776025A4889EE9741f70";
+  const address = "0x3691f6887064084ab870bc343DeBDfC4E6206DDd";
   const provider = ethers.getDefaultProvider(url);
   const signer = new ethers.Wallet(pk, provider);
   const signer2 = new ethers.Wallet(pk2, provider);

@@ -3,7 +3,7 @@ pragma solidity ^0.8.7;
 
 // EtherBetsv2. Here I'm going to implement the following changes:
 // Chainlink VRF V2: makes it so much easier to obtain random numbers and has more custom options.
-// Use the Fischer-Yates shuffling algorithm to expand the random seed into n random numbers - more gas efficient.
+// Use the Fisher-Yates shuffling algorithm to expand the random seed into n random numbers - more gas efficient.
 // Let each user claim the prize by himself.
 
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
@@ -133,7 +133,9 @@ contract EtherBetsV2 is VRFConsumerBaseV2{
 
     uint constant decimals = 10 ** 18;
 
-    uint constant fee = 2; // 0.2% fee on bets to pay for VRF.
+    uint constant fee = 10; // 1% fee on bets to pay for VRF.
+
+    uint constant accumulation = 500; // 50% always accumulates to the next round.
 
     uint public treasury;
 
@@ -187,7 +189,7 @@ contract EtherBetsV2 is VRFConsumerBaseV2{
 
     /**
      * Expands the random seed into n unique pseudorandom
-     * numbers from 1 to m, using the Fischer Yates schuffle.
+     * numbers from 1 to m, using the Ficher Yates schuffle.
      * Conditions: m > n.
      */
     function expand(uint256 seed, uint8 n, uint8 m) public pure returns (uint8[] memory){
@@ -234,7 +236,8 @@ contract EtherBetsV2 is VRFConsumerBaseV2{
         require(paused == false, "Bets are paused to draw the numbers.");
         addressToBets[msg.sender][draw].push(bet);
         betCounter[bet][draw]++;
-        drawToPrize[draw] += (betCost * (1000 - fee)) / 1000;
+        drawToPrize[draw] += (betCost * (1000 - fee - accumulation)) / 1000;
+        drawToPrize[draw + 1] += (betCost * accumulation) / 1000;
         treasury += (betCost * fee) / 1000;
         emit BetPlaced(msg.sender, bet, draw);
     }
@@ -297,11 +300,9 @@ contract EtherBetsV2 is VRFConsumerBaseV2{
         lastDrawTime = block.timestamp;
         
         if (betCounter[arrayToUint(winningNumbers)][draw] == 0){
-            drawToPrize[draw + 1] = drawToPrize[draw];
+            drawToPrize[draw + 1] += drawToPrize[draw];
         }
-        else{
-            drawToPrize[draw + 1] = 0;
-        }
+
         draw++;
         paused = false;
     }
