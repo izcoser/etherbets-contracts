@@ -1,5 +1,4 @@
 require("@nomiclabs/hardhat-waffle");
-/*require("@chainlink/contracts");*/
 require("@nomiclabs/hardhat-etherscan");
 require('dotenv').config()
 
@@ -25,6 +24,10 @@ module.exports = {
       url: `https://kovan.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [`${RINKEBY_PRIVATE_KEY}`]
     },
+    goerli: {
+      url: `https://goerli.infura.io/v3/${INFURA_API_KEY}`,
+      accounts: [`${RINKEBY_PRIVATE_KEY}`]
+    }
   },
   etherscan: {
     // Your API key for Etherscan
