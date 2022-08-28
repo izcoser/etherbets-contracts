@@ -62,9 +62,9 @@
             },
             {
                 "indexed": false,
-                "internalType": "uint8",
+                "internalType": "uint256",
                 "name": "bet",
-                "type": "uint8"
+                "type": "uint256"
             },
             {
                 "indexed": false,
@@ -128,22 +128,10 @@
         "type": "event"
     },
     {
-        "inputs": [
-            {
-                "internalType": "uint8[]",
-                "name": "arr",
-                "type": "uint8[]"
-            }
-        ],
-        "name": "arrayToUint",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "pure",
+        "inputs": [],
+        "name": "addToPool",
+        "outputs": [],
+        "stateMutability": "payable",
         "type": "function"
     },
     {
@@ -156,19 +144,6 @@
     {
         "inputs": [
             {
-                "internalType": "uint8[]",
-                "name": "arr",
-                "type": "uint8[]"
-            }
-        ],
-        "name": "checkRequirements",
-        "outputs": [],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
                 "internalType": "uint256",
                 "name": "_draw",
                 "type": "uint256"
@@ -176,7 +151,7 @@
         ],
         "name": "claimPrize",
         "outputs": [],
-        "stateMutability": "nonpayable",
+        "stateMutability": "payable",
         "type": "function"
     },
     {
@@ -237,59 +212,66 @@
         "name": "getDetails",
         "outputs": [
             {
-                "internalType": "string",
-                "name": "",
-                "type": "string"
-            },
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint8",
-                "name": "",
-                "type": "uint8"
-            },
-            {
-                "internalType": "uint8",
-                "name": "",
-                "type": "uint8"
-            },
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            },
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            },
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint8[]",
-                "name": "",
-                "type": "uint8[]"
-            },
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
+                "components": [
+                    {
+                        "internalType": "string",
+                        "name": "name",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "betCost",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "maximumNumber",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "picks",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "timeBetweenDraws",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "lastDrawTime",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "paused",
+                        "type": "bool"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "draw",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "prize",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint8[]",
+                        "name": "winningNumbers",
+                        "type": "uint8[]"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "randomNumber",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct EtherBetsV2.ContractDetails",
+                "name": "c",
+                "type": "tuple"
             }
         ],
         "stateMutability": "view",
@@ -298,28 +280,9 @@
     {
         "inputs": [
             {
-                "internalType": "uint8[]",
-                "name": "arr",
-                "type": "uint8[]"
-            }
-        ],
-        "name": "inAcceptableRange",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint8",
+                "internalType": "uint256",
                 "name": "bet",
-                "type": "uint8"
+                "type": "uint256"
             }
         ],
         "name": "placeBet",
@@ -346,6 +309,19 @@
         "type": "function"
     },
     {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_upkeeper",
+                "type": "address"
+            }
+        ],
+        "name": "setUpkeeper",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
         "inputs": [],
         "name": "treasury",
         "outputs": [
@@ -353,6 +329,19 @@
                 "internalType": "uint256",
                 "name": "",
                 "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "upkeeper",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
             }
         ],
         "stateMutability": "view",

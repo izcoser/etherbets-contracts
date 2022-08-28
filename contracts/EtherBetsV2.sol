@@ -9,7 +9,8 @@ pragma solidity ^0.8.7;
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 
-contract EtherBetsV2Factory{
+
+/*contract EtherBetsV2Factory{
     event NewLottery(address lottery);
     address[] public contracts;
 
@@ -19,11 +20,11 @@ contract EtherBetsV2Factory{
         emit NewLottery(address(e));
         return address(e);
     }
-}
+}*/
 
 contract EtherBetsV2 is VRFConsumerBaseV2{
     event NumbersDrawn(uint8[] winningNumbers, uint256 draw);
-    event BetPlaced(address indexed sender, uint8 bet, uint256 draw);
+    event BetPlaced(address indexed sender, uint bet, uint256 draw);
     event RandomnessRequested(uint256 draw);
     event RandomnessFulfilled(uint256 randomness, uint256 draw);
 
@@ -34,12 +35,12 @@ contract EtherBetsV2 is VRFConsumerBaseV2{
   
     // Goerli coordinator. For other networks,
     // see https://docs.chain.link/docs/vrf-contracts/#configurations
-    address vrfCoordinator = 0x2Ca8E0C643bDe4C2E08ab1fA0da3401AdAD7734D;
+    address vrfCoordinator;// = 0x2Ca8E0C643bDe4C2E08ab1fA0da3401AdAD7734D;
   
     // The gas lane to use, which specifies the maximum gas price to bump to.
     // For a list of available gas lanes on each network,
     // see https://docs.chain.link/docs/vrf-contracts/#configurations
-    bytes32 keyHash = 0x79d3d8832d904592c0bf9818b621522c988bb8b0c05cdc3b15aea1b6e8db0c15;
+    bytes32 keyHash;// = 0x79d3d8832d904592c0bf9818b621522c988bb8b0c05cdc3b15aea1b6e8db0c15;
   
     // Depends on the number of requested values that you want sent to the
     // fulfillRandomWords() function. Storing each word costs about 20,000 gas,
@@ -55,8 +56,7 @@ contract EtherBetsV2 is VRFConsumerBaseV2{
     // For this example, retrieve 2 random values in one request.
     // Cannot exceed VRFCoordinatorV2.MAX_NUM_WORDS.
     uint32 numWords =  1;
-  
-    uint256[] s_randomWords;
+
     uint256 s_requestId;
     address s_owner;
 
@@ -131,16 +131,34 @@ contract EtherBetsV2 is VRFConsumerBaseV2{
 
     uint256 randomNumber;
 
-    uint constant decimals = 10 ** 12;
+    uint constant decimals = 10 ** 18;
 
     uint constant fee = 2; // 0.2% fee on bets to pay for VRF.
 
     uint public treasury;
 
-    constructor(string memory _name, uint _betCost, uint8 _maximumNumber, uint8 _picks, uint256 _timeBetweenDraws, uint64 _subscriptionId) VRFConsumerBaseV2(vrfCoordinator){
-        COORDINATOR = VRFCoordinatorV2Interface(vrfCoordinator);
+    address public upkeeper;
+
+    struct ContractDetails{
+        string name;
+        uint betCost;
+        uint maximumNumber;
+        uint8 picks;
+        uint timeBetweenDraws;
+        uint lastDrawTime;
+        bool paused;
+        uint draw;
+        uint prize;
+        uint8[] winningNumbers;
+        uint randomNumber;
+    }
+
+    constructor(string memory _name, uint _betCost, uint8 _maximumNumber, uint8 _picks, uint256 _timeBetweenDraws,
+        uint64 _subscriptionId, address _vrfCoordinator, bytes32 _keyHash) VRFConsumerBaseV2(_vrfCoordinator){
+        COORDINATOR = VRFCoordinatorV2Interface(_vrfCoordinator);
         s_owner = msg.sender;
         s_subscriptionId = _subscriptionId;
+        keyHash = _keyHash;
         name = _name;
         betCost = _betCost;
         maximumNumber = _maximumNumber;
@@ -149,27 +167,22 @@ contract EtherBetsV2 is VRFConsumerBaseV2{
         lastDrawTime = block.timestamp;
     }
 
-    function getDetails() public view returns (string memory, uint, uint8, uint8, uint, uint, bool, uint, uint, uint8[] memory, uint256){
-        return (name, betCost, maximumNumber, picks, timeBetweenDraws, lastDrawTime, paused, draw, drawToPrize[draw], winningNumbers, randomNumber);
+    function setUpkeeper(address _upkeeper) external onlyOwner{
+        upkeeper = _upkeeper;
     }
- 
-    /**
-     * Checks if an array input matches the requirements of this contract.
-     */
-    function checkRequirements(uint8[] memory arr) public view{
-        require(inAcceptableRange(arr), "Numbers must be larger than 0 and less than or equal to maximumNumber.");
-        require(arr.length == picks, "Numbers must match expected length.");
-    }
-    /**
-     * Checks if the numbers in the array are in the acceptable range.
-     */
-    function inAcceptableRange(uint8[] memory arr) public view returns (bool){
-        for(uint8 i = 0; i < arr.length; i++){
-            if(arr[i] == 0 || arr[i] > maximumNumber){
-                return false;
-            }
-        }
-        return true;
+
+    function getDetails() external view returns (ContractDetails memory c){
+        c.name = name;
+        c.betCost = betCost;
+        c.maximumNumber = maximumNumber;
+        c.picks = picks;
+        c.timeBetweenDraws = timeBetweenDraws;
+        c.lastDrawTime = lastDrawTime;
+        c.paused = paused;
+        c.draw = draw;
+        c.prize = drawToPrize[draw];
+        c.winningNumbers = winningNumbers;
+        c.randomNumber = randomNumber;
     }
 
     /**
@@ -200,7 +213,7 @@ contract EtherBetsV2 is VRFConsumerBaseV2{
      *          arr = [255, 1, 2] -> number = 0b100...011
      * Input numbers must be between 1 and 255.
      */
-    function arrayToUint(uint8[] memory arr) public pure returns (uint){
+    function arrayToUint(uint8[] memory arr) internal pure returns (uint){
         uint number = 0;
         for(uint8 i = 0; i < arr.length; i++){
             number |= (1 << (arr[i] - 1));
@@ -208,7 +221,7 @@ contract EtherBetsV2 is VRFConsumerBaseV2{
         return number;
     }
 
-    function beginDraw() public{
+    function beginDraw() external onlyOwner{
         require(block.timestamp - lastDrawTime > timeBetweenDraws, "You must wait longer before another draw is available.");
         require(paused == false, "A draw is already happening");
         paused = true; // pause bets to wait for the result.
@@ -216,11 +229,9 @@ contract EtherBetsV2 is VRFConsumerBaseV2{
         emit RandomnessRequested(draw);
     }
 
-    function placeBet(uint8 bet) public payable{
+    function placeBet(uint bet) external payable{
         require(msg.value == betCost, "msg.value does not match betCost");
         require(paused == false, "Bets are paused to draw the numbers.");
-        //checkRequirements(numbers);
-        //uint bet = arrayToUint(numbers);
         addressToBets[msg.sender][draw].push(bet);
         betCounter[bet][draw]++;
         drawToPrize[draw] += (betCost * (1000 - fee)) / 1000;
@@ -228,7 +239,7 @@ contract EtherBetsV2 is VRFConsumerBaseV2{
         emit BetPlaced(msg.sender, bet, draw);
     }
 
-    function claimPrize(uint256 _draw) public{
+    function claimPrize(uint256 _draw) external{
         require(draw > _draw, "Specified draw hasn't occurred yet.");
         require(addressToClaim[msg.sender][_draw] == false, "Address has already claimed a prize.");
 
@@ -241,7 +252,7 @@ contract EtherBetsV2 is VRFConsumerBaseV2{
     }
 
     function claimablePrize(address user, uint256 _draw) public view returns (uint){
-        if(draw <= _draw){
+        if(draw <= _draw || addressToClaim[user][_draw]){
            return 0;
         }
 
@@ -265,7 +276,7 @@ contract EtherBetsV2 is VRFConsumerBaseV2{
     }
 
       // Assumes the subscription is funded sufficiently.
-    function requestRandomWords() internal onlyOwner {
+    function requestRandomWords() internal {
         // Will revert if subscription is not set and funded.
         s_requestId = COORDINATOR.requestRandomWords(
         keyHash,
@@ -302,8 +313,17 @@ contract EtherBetsV2 is VRFConsumerBaseV2{
         require(sent);
     }
 
+    function addToPool() external payable{
+        drawToPrize[draw] += msg.value;
+    }
+
     modifier onlyOwner() {
         require(msg.sender == s_owner);
+        _;
+    }
+
+    modifier onlyUpkeeper(){
+        require(msg.sender == upkeeper);
         _;
     }
 }
