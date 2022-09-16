@@ -18,7 +18,7 @@ Current work in progress available at: https://etherbets.org/
 
 - [ ] Explore other oracle options.
 
-- [ ] Use Chainlink Keepers to automate the flow of the systems.
+- [ ] Use Chainlink Keepers to automate function calls.
 
 - [x] Get rid of public variables (used for debugging).
 
